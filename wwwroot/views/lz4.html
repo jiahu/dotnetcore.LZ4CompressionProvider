@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>lz4.js Test</title>
+</head>
+
+<body>
+    <div>
+        <input type="file" id="f">
+        <div id="result"></div>
+    </div>
+
+    <!-- lz4 library -->
+    <script src="../js/lz4/lz4.js"></script>
+    <script src="../js/string.utility.js"></script>
+
+    <script>
+    window.onload = function() {
+        
+        f.onchange = function(e) {
+            var fr = new FileReader;
+            fr.readAsArrayBuffer(e.target.files[0]);
+            fr.onload = function() {
+                // console.log('Start');
+                var s = new Uint8Array(fr.result);
+                // var start = Date.now();
+                // var c = lz4.compress(s);
+                // console.log(c);
+                var d = lz4.decompress(s);
+                var ds = Utf8ArrayToStr(d);
+                document.getElementById("result").innerHTML += '<div>origin content:<br />' + ds + '</div>';
+                // start = Date.now();
+                // var d = lz4.decompress(c);
+                // console.log(d);
+                // result.innerHTML += '<div>compress: ' + (d.length/s.length*100.00).toFixed(2) + '% in ' + (Date.now() - start) + 'ms</div>';
+            }
+        };
+        
+        loadAPIData();
+    };
+
+    function loadAPIData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if ((this.readyState == 4) && (this.status == 200)) {
+                var s = new Uint8Array(this.responseText);
+                var d = lz4.decompress(s);
+                var ds = Utf8ArrayToStr(d);
+                document.getElementById("result").innerHTML += '<div>origin content:<br />' + ds + '</div>';
+            }
+        };
+        xhttp.open("POST", "http://localhost:12358/api/values", true);
+        xhttp.setRequestHeader("Accept", "*/*");
+        xhttp.setRequestHeader("Accept-Encoding", "lz4");
+        xhttp.withCredentials = true;
+        xhttp.send("a=1&b=2");
+    }
+    </script>
+</body>
+
+</html>
